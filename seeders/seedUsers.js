@@ -1,40 +1,49 @@
-const mongoose = require('mongoose');
-const { User, Thought } = require('../models'); // Assuming you're using User and Thought models
+const User = require('../models/User');
+const Thought = require('../models/Thought');
 
-// Sample user data
+// Sample user data (ensure these match your seeded thoughts)
 const usersData = [
-  { username: 'john_doe', email: 'john.doe@example.com' },
-  { username: 'jane_smith', email: 'jane.smith@example.com' },
-  { username: 'sam_jones', email: 'sam.jones@example.com' },
+  { username: "john_doe", email: "john.doe@example.com" },
+  { username: "jane_smith", email: "jane.smith@example.com" },
+  { username: "sam_jones", email: "sam.jones@example.com" },
 ];
 
-// Function to seed users
-async function seedUsers(thoughts) {
+// Function to seed users and link them to thoughts
+async function seedUsers() {
   try {
-    // Clear existing users
+    // Clear existing users before seeding new ones
     await User.deleteMany({});
 
-    // Create users
-    const users = await User.insertMany(usersData);
+    // Seed the users with thoughts
+    const thoughts = await Thought.find();  // Get all seeded thoughts
 
-    // Update users with their corresponding thoughts
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      // Filter thoughts by username to assign thoughts to the correct user
-      const userThoughts = thoughts.filter(thought => thought.username === user.username);
-      const thoughtIds = userThoughts.map(thought => thought._id);
-
-      // Update each user with the thought IDs
-      await User.findByIdAndUpdate(user._id, { $push: { thoughts: { $each: thoughtIds } } });
-
-      console.log(`User ${user.username} updated with thoughts.`);
+    if (thoughts.length === 0) {
+      console.log("No thoughts found to link to users.");
+      return;  // Exit if no thoughts are found
     }
 
-    console.log('Users seeded successfully!');
+    for (let i = 0; i < usersData.length; i++) {
+      const user = usersData[i];
+
+      // Find the thoughts that belong to this user
+      const thoughtIds = thoughts.filter(thought => thought.username === user.username).map(thought => thought._id);
+
+      if (thoughtIds.length === 0) {
+        console.log(`No thoughts found for user: ${user.username}`);
+      }
+
+      // Create the user and link them to their thoughts
+      const newUser = await User.create({
+        username: user.username,
+        email: user.email,
+        thoughts: thoughtIds, // Link thoughts to the user
+      });
+
+      console.log(`User ${user.username} created and linked to thoughts: ${thoughtIds}`);
+    }
+
   } catch (err) {
     console.error('Error seeding users:', err);
-  } finally {
-    mongoose.connection.close();
   }
 }
 

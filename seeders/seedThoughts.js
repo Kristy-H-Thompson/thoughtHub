@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const { Thought } = require('../models'); // Assuming you're using Thought model from models directory
+const Thought = require('../models/Thought'); // Import the Thought model
 
-// Seed thoughts data
+// Sample thoughts data
 const thoughtsData = [
   { thoughtText: "I'm thinking about building something amazing.", username: 'john_doe' },
   { thoughtText: "The weather is great today!", username: 'jane_smith' },
@@ -11,17 +10,14 @@ const thoughtsData = [
 // Function to seed thoughts
 async function seedThoughts() {
   try {
-    // Clear existing thoughts
-    await Thought.deleteMany({});
-
-    // Create new thoughts and return them
-    const thoughts = await Thought.insertMany(thoughtsData);
-
-    console.log('Thoughts seeded:', thoughts);
-    return thoughts;  // Return the created thoughts to use later
+    // Clear existing thoughts before seeding new ones
+    await Thought.deleteMany({}); // This should work if the model is imported correctly
+    const thoughts = await Thought.insertMany(thoughtsData); // Insert the new thoughts
+    console.log('Thoughts seeded:', thoughts); // Log the seeded thoughts
+    return thoughts; // Return seeded thoughts if needed for linking with users
   } catch (err) {
-    console.error('Error seeding thoughts:', err);
+    console.error('Error seeding thoughts:', err); // Log any errors
   }
 }
 
-seedThoughts();
+module.exports = seedThoughts; // Export the function

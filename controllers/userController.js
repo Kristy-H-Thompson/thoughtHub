@@ -3,6 +3,7 @@ const User = require('../models/User'); // Assuming you have a User model
 // Controller function to get all users
 const getAllUsers = (req, res) => {
     User.find()
+        .populate('thoughts') // Populate the thoughts field with the full thought data
         .then(users => res.json(users))
         .catch(err => res.status(500).json(err));
 };
@@ -11,6 +12,7 @@ const getAllUsers = (req, res) => {
 const getUserById = (req, res) => {
     const { userId } = req.params;
     User.findById(userId)
+        .populate('thoughts') // Also populate the thoughts for a single user
         .then(user => {
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });

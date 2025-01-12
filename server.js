@@ -6,7 +6,7 @@ const thoughtRoutes = require('./routes/thoughtRoutes');
 const app = express();
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost/socialNetwork', {
+mongoose.connect('mongodb://localhost/thoughtHub', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
