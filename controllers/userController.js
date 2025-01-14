@@ -40,12 +40,30 @@ const updateUser = (req, res) => {
 };
 
 // Controller function to delete a user by id
-const deleteUser = (req, res) => {
-    const { userId } = req.params;
-    User.findByIdAndDelete(userId)
-        .then(() => res.json({ message: 'User deleted successfully' }))
-        .catch(err => res.status(500).json(err));
-};
+const deleteUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+  
+      // Step 1: Find the user to delete
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Step 2: Delete all thoughts associated with the user
+      await Thought.deleteMany({ username: user.username });
+  
+      // Step 3: Delete the user
+      await User.findByIdAndDelete(userId);
+  
+      return res.status(200).json({ message: 'User and associated thoughts deleted successfully' });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
 
 // Controller function to add a friend
 const addFriend = (req, res) => {

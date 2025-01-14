@@ -7,23 +7,25 @@ const userSchema = new Schema(
         username: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            trimmed: true
         },
         email: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please fill a valid email address'] // Email validation regex
         },
         thoughts: [
             {
                 type: Schema.Types.ObjectId,
-                ref: 'Thought'  // Ensure this is 'Thought'
+                ref: 'Thought'  // Reference to the Thought model
             }
         ],
         friends: [
             {
                 type: Schema.Types.ObjectId,
-                ref: 'User'
+                ref: 'User'  // Reference to the User model (self-reference)
             }
         ]
     },
@@ -34,6 +36,11 @@ const userSchema = new Schema(
         id: false
     }
 );
+
+// Virtual for friend count
+userSchema.virtual('friendCount').get(function() {
+    return this.friends.length;
+});
 
 const User = model('User', userSchema);
 
